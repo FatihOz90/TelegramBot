@@ -7,9 +7,9 @@ Telegram Bot API
 - Çekilen üyeleri kendi grubunuza dahil etme
 
 # Kullanılan Kütüphaneler
-SQLite
-WTelegram (https://github.com/wiz0u/WTelegramClient)
-TLSharp (https://github.com/sochix/TLSharp)
+- SQLite
+- WTelegram (https://github.com/wiz0u/WTelegramClient)
+- TLSharp (https://github.com/sochix/TLSharp)
 
 # Kurulum
 https://my.telegram.org/auth adresine girip kendi telefon numaranız üzerinden API Key ve Api Hash bilgilerini talep edin ardından bu bilgileri programın ilgili alanlarına doldurarak aktivasyon işleminini tamamlayarak aktif hale getiriniz. 

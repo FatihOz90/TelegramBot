@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,30 +20,23 @@ namespace TelegramBot
             public string Name { get; set; }
         }
 
-        string Config(string str)
-        {
-            switch (str)
-            {
-                case "api_id": return txtApiID.Text;
-                case "api_hash": return txtAPiHash.Text;
-                case "phone_number": return txtPhoneNum.Text;
-                case "verification_code":
-                    string code = null;
-                    ShowInputDialog(ref code);
-                    Thread.Sleep(1000);
-                    return code;
-                case "first_name": return "Fatih";      // if sign-up is required
-                case "last_name": return "OZ";          // if sign-up is required
-                case "password": return "secret!";     // if user has enabled 2FA
-                default: return null;                  // let WTelegramClient decide the default config
-            }
-        }
-        public static Client client;
+
+        public static string _session_pathname;
+        public static Client client = null;
         public Dictionary<long, UserBase> users;
         public static readonly int SleepTime = 10;
         public bool ThreadRun = false;
+        public bool SystemIsRun = false;
         //private ChatBase chatBase = null;
         private Messages_Chats allchats;
+
+
+
+
+
+
+
+
         //Form
         public Form1()
         {
@@ -55,14 +49,68 @@ namespace TelegramBot
         }
 
 
+
+        string Config(string str)
+        {
+            switch (str)
+            {
+                case "api_id": return txtApiID.Text;
+                case "api_hash": return txtAPiHash.Text;
+                case "phone_number": return txtPhoneNum.Text;
+                case "verification_code":
+                    string code = null;
+                    Logs("Dogrulama bekliyor.");
+                    ShowInputDialog(ref code);
+                    Thread.Sleep(1000);
+                    return code;
+                case "first_name": return "Bla";      // if sign-up is required
+                case "last_name": return "Bla";          // if sign-up is required
+                case "password": return "secret!";     // if user has enabled 2FA
+                case "session_pathname": return _session_pathname;
+                default: return null;                  // let WTelegramClient decide the default config
+            }
+        }
+
         private async Task StartingAsync()
         {
+
+
+            if (string.IsNullOrWhiteSpace(txtApiID.Text))
+            {
+                MessageBox.Show("apiID Is Null Or White Space");
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(txtAPiHash.Text))
+            {
+                MessageBox.Show("APiHash Is Null Or White Space");
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(txtPhoneNum.Text))
+            {
+                MessageBox.Show("PhoneNum Is Null Or White Space");
+                return;
+            }
+
+            _session_pathname = txtPhoneNum.Text.Replace("+", "") + ".session";
+
+
+            Logs("Client Başladı.");
             client = new Client(Config);
+            Logs("Client Tamamlandı.");
+
+            Logs("Connect Başladı.");
             await client.ConnectAsync();
+            Logs("Connect Tamamlandı.");
+
+            Logs("Login Başladı.");
             await client.LoginUserIfNeeded();
+            Logs("Login Tamamlandı.");
+
             await GET_Messages_GetAllChats();
             users = new Dictionary<long, UserBase>();
             DbLoad_Members();
+            Logs("Kullanım için hazır.");
+
         }
 
         private void Logs(string Message)
@@ -83,7 +131,7 @@ namespace TelegramBot
             {
                 FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog,
                 ClientSize = size,
-                Text = "Name"
+                Text = "AuthKey"
             };
 
             System.Windows.Forms.TextBox textBox = new TextBox
@@ -119,6 +167,7 @@ namespace TelegramBot
 
             DialogResult result = inputBox.ShowDialog();
             input = textBox.Text;
+
             return result;
         }
 
@@ -262,15 +311,29 @@ namespace TelegramBot
         private async Task GET_Messages_GetAllChats()
         {
             allchats = await client.Messages_GetAllChats(null);
+          
+            if (allchats != null)
+                SystemIsRun = true;
+            else
+                SystemIsRun = false;
         }
         private async Task AddMembersGroup()
         {
 
-            if (allchats == null)
+        //if (allchats == null)
+        //{
+        //    //Logs("allchats is null");
+        //    await GET_Messages_GetAllChats();
+        //    Logs("allchats is null Şimdi tekrar tıklayın.");
+        //}
+
+            RETURNBACK:
+            if (!SystemIsRun)
             {
-                Logs("allchats is null'du");
-                await GET_Messages_GetAllChats();
-                Logs("allchats is null'du. Şimdi tekrar tıklayın.");
+                Logs("Lütfen Bekleyin.");
+                var data = GET_Messages_GetAllChats();//Task.Run(() => Task.FromResult(()));
+                data.Wait();
+                goto RETURNBACK;
             }
             else
             {
@@ -391,11 +454,13 @@ namespace TelegramBot
         //Menus
         private void grupListeleToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (allchats == null)
+            RETURNBACK:
+            if (!SystemIsRun)
             {
-                Logs("allchats is null'du");
-                Task.Run(async () => await GET_Messages_GetAllChats());
-                Logs("allchats is null'du. Şimdi tekrar tıklayın.");
+                Logs("Lütfen Bekleyin.");
+                var data = GET_Messages_GetAllChats();//Task.Run(() => Task.FromResult(()));
+                data.Wait();
+                goto RETURNBACK;
             }
             else
             {

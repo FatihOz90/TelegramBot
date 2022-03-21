@@ -12,7 +12,7 @@ Telegram Bot API
 - TLSharp (https://github.com/sochix/TLSharp)
 
 # Kurulum
-https://my.telegram.org/auth adresine girip kendi telefon numaranız üzerinden API Key ve Api Hash bilgilerini talep edin ardından bu bilgileri programın ilgili alanlarına doldurarak aktivasyon işleminini tamamlayarak aktif hale getiriniz. 
+https://my.telegram.org/auth adresine girip kendi telefon numaranız üzerinden API Key ve Api Hash bilgilerini talep edin ardından bu bilgileri programın ilgili alanlarına doldurup aktivasyon işlemini tamamlayarak aktif hale getiriniz.
 
 # Uyarı
 Program Eğitim amaçlı olup kullanım sorumlulukları kullanıcıya aittir. Yapılabilinecek tüm işlemlerden kendiniz sorumlusunuz.
